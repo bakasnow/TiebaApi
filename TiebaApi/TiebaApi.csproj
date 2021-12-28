@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{62910F4B-6EC8-4021-9EE3-037CB5487FCE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TiebaApi</RootNamespace>
+    <AssemblyName>TiebaApi</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BakaSnowTool">
+      <HintPath>..\..\BakaSnowTool\BakaSnowTool\bin\Release\BakaSnowTool.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlAgilityPack, Version=1.11.34.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.11.34\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="HttpHelper">
+      <HintPath>..\..\HttpHepler v2.2\CsharpHttpHelper\bin\Release\HttpHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="ImageProcessor, Version=2.9.1.225, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ImageProcessor.2.9.1\lib\net452\ImageProcessor.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TiebaAppApi\TiebaApp.cs" />
+    <Compile Include="TiebaAppApi\TiebaBaWuTuanDui.cs" />
+    <Compile Include="TiebaAppApi\TiebaHuiFu.cs" />
+    <Compile Include="TiebaAppApi\TiebaLouZhongLou.cs" />
+    <Compile Include="TiebaAppApi\TiebaNeiRong.cs" />
+    <Compile Include="TiebaAppApi\TiebaYinJi.cs" />
+    <Compile Include="TiebaAppApi\TiebaZhuTi.cs" />
+    <Compile Include="TiebaBaWuApi\TiebaBaWu.cs" />
+    <Compile Include="TiebaBaWuApi\TiebaBaWuHouTai.cs" />
+    <Compile Include="TiebaForms\TiebaHanZiYanZhengMaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TiebaForms\TiebaHanZiYanZhengMaForm.Designer.cs">
+      <DependentUpon>TiebaHanZiYanZhengMaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TiebaJieGou\TiebaBaWuJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaBaWuTuanDuiJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaGuanZhuJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaHuiFuJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaLouZhongLouJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaMingPianJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaNeiRongJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaBaWuHouTaiJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaUidJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaWoDeTieZiJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaXiaoXiAtWoDeJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaYongHuSouSuoJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaYongHuXinXiJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaZhuTiJieGou.cs" />
+    <Compile Include="TiebaLeiXing\TiebaBaWuLeiXing.cs" />
+    <Compile Include="TiebaLeiXing\TiebaNeiRongLeiXing.cs" />
+    <Compile Include="TiebaTools\TiebaHttpHelper.cs" />
+    <Compile Include="TiebaWebApi\Tieba.cs" />
+    <Compile Include="TiebaWebApi\TiebaGaoJiSouSuo.cs" />
+    <Compile Include="TiebaWebApi\TiebaGeRenZhuYe.cs" />
+    <Compile Include="TiebaWebApi\TiebaGeRenZhuYeChuPingBan.cs" />
+    <Compile Include="TiebaWebApi\TiebaWeb.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TiebaForms\TiebaHanZiYanZhengMaForm.resx">
+      <DependentUpon>TiebaHanZiYanZhengMaForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
