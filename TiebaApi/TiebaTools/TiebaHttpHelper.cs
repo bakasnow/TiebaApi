@@ -25,7 +25,6 @@ namespace TiebaApi.TiebaTools
                 Referer = "",//来源URL     可选项
                 Allowautoredirect = false,//是否根据３０１跳转     可选项
                 AutoRedirectCookie = false,//是否自动处理Cookie     可选项
-                Postdata = "",//Post数据     可选项GET时不需要写
                 ResultType = ResultType.String,//返回数据类型，是Byte还是String
             };
             HttpResult result = http.GetHtml(item);

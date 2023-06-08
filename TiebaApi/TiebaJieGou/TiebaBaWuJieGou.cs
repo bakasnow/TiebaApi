@@ -4,6 +4,6 @@
     {
         public string ZhiWu;
         public string YongHuMing;
-        public string TouXiang;
+        public string TouXiangID;
     }
 }

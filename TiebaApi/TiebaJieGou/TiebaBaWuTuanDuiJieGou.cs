@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TiebaApi.TiebaLeiXing;
 
 namespace TiebaApi.TiebaJieGou
 {
@@ -13,6 +14,6 @@ namespace TiebaApi.TiebaJieGou
         public string NiCheng;
         public string TouXiangID;
         public int DengJi;
-        public string ZhiWu;
+        public TiebaBaWuLeiXing ZhiWu;
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using TiebaApi.TiebaJieGou;
 
 namespace TiebaApi.TiebaWebApi
 {
@@ -50,11 +51,63 @@ namespace TiebaApi.TiebaWebApi
         /// </summary>
         /// <param name="text">头像</param>
         /// <returns></returns>
-        public static string GuoLvTouXiangID(string text) 
+        public static string GuoLvTouXiangID(string text)
         {
             if (string.IsNullOrEmpty(text)) return "";
 
-            return new Regex("tb.[a-zA-Z0-9\\._\\-]{30,33}").Match(text).Value;
+            return new Regex("tb\\.[a-zA-Z0-9\\._\\-]{30,34}").Match(text).Value;
+        }
+
+        /// <summary>
+        /// 获取主显账号
+        /// </summary>
+        /// <param name="yongHuMing"></param>
+        /// <param name="niCheng"></param>
+        /// <param name="fuGaiMing"></param>
+        /// <returns></returns>
+        public static string GetZhuXianZhangHao(string yongHuMing, string niCheng, string fuGaiMing)
+        {
+            if (string.IsNullOrEmpty(fuGaiMing) == false)
+            {
+                return fuGaiMing;
+            }
+            else if (string.IsNullOrEmpty(niCheng) == false)
+            {
+                return niCheng;
+            }
+            else if (string.IsNullOrEmpty(yongHuMing) == false)
+            {
+                return yongHuMing;
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// 获取主显账号
+        /// </summary>
+        /// <param name="mingPian"></param>
+        /// <returns></returns>
+        public static string GetZhuXianZhangHao(TiebaMingPianJieGou mingPian)
+        {
+            if (string.IsNullOrEmpty(mingPian.FuGaiMing) == false)
+            {
+                return mingPian.FuGaiMing;
+            }
+            else if (string.IsNullOrEmpty(mingPian.NiCheng) == false)
+            {
+                return mingPian.NiCheng;
+            }
+            else if (string.IsNullOrEmpty(mingPian.YongHuMing) == false)
+            {
+                return mingPian.YongHuMing;
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
     }
 }

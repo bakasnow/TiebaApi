@@ -4,8 +4,6 @@ using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using TiebaApi.TiebaForms;
 using TiebaApi.TiebaJieGou;
 using TiebaApi.TiebaTools;
 
@@ -62,7 +60,7 @@ namespace TiebaApi.TiebaWebApi
         {
             TiebaZhangHaoXinXiJieGou tiebaZhangHaoXinXiJieGou = new TiebaZhangHaoXinXiJieGou();
 
-            string url = $"http://tieba.baidu.com/f/user/json_userinfo";
+            string url = $"https://tieba.baidu.com/f/user/json_userinfo";
             //Console.WriteLine(url);
 
             string html = TiebaHttpHelper.Get(url, cookie);
@@ -98,7 +96,7 @@ namespace TiebaApi.TiebaWebApi
             }
 
             long.TryParse(jObject["data"]?["open_uid"]?.ToString(), out tiebaZhangHaoXinXiJieGou.Uid);
-            tiebaZhangHaoXinXiJieGou.TouXiang = Tieba.GuoLvTouXiangID(jObject["data"]?["user_portrait"]?.ToString());
+            tiebaZhangHaoXinXiJieGou.TouXiangID = Tieba.GuoLvTouXiangID(jObject["data"]?["user_portrait"]?.ToString());
             tiebaZhangHaoXinXiJieGou.YongHuMing = jObject["data"]?["user_name_weak"]?.ToString();
             tiebaZhangHaoXinXiJieGou.NiCheng = jObject["data"]?["user_name_show"]?.ToString();
             tiebaZhangHaoXinXiJieGou.FuGaiMing = jObject["data"]?["show_nickname"]?.ToString();
@@ -177,126 +175,13 @@ namespace TiebaApi.TiebaWebApi
                     {
                         ZhiWu = zhiWu,
                         YongHuMing = yongHuMing,
-                        TouXiang = touXiang
+                        TouXiangID = touXiang
                     });
                 }
             }
 
             msg = "获取成功";
             return baWuTuanDuiLieBiao;
-        }
-
-        /// <summary>
-        /// 获取贴吧关注列表
-        /// </summary>
-        /// <param name="yonghuming">用户名</param>
-        /// <returns></returns>
-        public static List<TiebaGuanZhuJieGou> GetTiebaGuanZhuLieBiao(string cookie, string yongHuMing, int page = 1)
-        {
-            List<TiebaGuanZhuJieGou> tiebaGuanZhuLieBiao = new List<TiebaGuanZhuJieGou>();
-
-            long uid = GetTiebaMingPian(yongHuMing).Uid;
-            //string url = "http://c.tieba.baidu.com/c/f/forum/like";
-            //string postStr
-            //    = cookie
-            //    + "&_client_id=" + Tieba.GetAndroidStamp()
-            //    + "&_client_type=2"
-            //    + "&_client_version=9.9.8.32"
-            //    + "&friend_uid=" + uid
-            //    + "&uid=" + uid;
-
-            string url = "http://c.tieba.baidu.com/c/f/forum/like";
-            string postStr
-                = cookie
-                + "&_client_id=" + Tieba.GetAndroidStamp()
-                + "&_client_type=2"
-                + "&_client_version=9.9.8.32"
-                + "&_phone_imei=450456461928196"
-                + "&cuid=00DC23509DCDF63928D194FD8D41703A%7CVRO6PAJEL"
-                + "&cuid_galaxy2=00DC23509DCDF63928D194FD8D41703A%7CVRO6PAJEL"
-                + "&cuid_gid="
-                + $"&friend_uid={uid}"
-                + "&from=1019960r"
-                + "&is_guest=1"
-                + "&model=MI+6"
-                + "&net_type=1"
-                + "&oaid=%7B%22sc%22%3A0%2C%22sup%22%3A0%2C%22tl%22%3A0%7D"
-                + "&page_no=" + page
-                + "&page_size=50"
-                + "&stErrorNums=1"
-                + "&stMethod=1"
-                + "&stMode=1"
-                + "&stSize=5061"
-                + "&stTime=667"
-                + "&stTimesNum=1"
-                + "&timestamp=1584512309167"
-                + "&uid=0";
-
-            postStr += "&sign=" + Tieba.GetTiebaSign(postStr);
-
-            string html = TiebaHttpHelper.Post(url, postStr, cookie);
-            if (string.IsNullOrEmpty(html))
-            {
-                return tiebaGuanZhuLieBiao;
-            }
-
-            //解析
-            JObject htmlJson;
-            try
-            {
-                htmlJson = JObject.Parse(html);
-            }
-            catch
-            {
-                return tiebaGuanZhuLieBiao;
-            }
-
-            if (htmlJson["error_code"]?.ToString() != "0")
-            {
-                return tiebaGuanZhuLieBiao;
-            }
-
-            //{"server_time":"50714","time":1584513751,"ctime":0,"logid":2551816537,"error_code":"0"}
-
-            if (!htmlJson.ContainsKey("forum_list") || htmlJson["forum_list"]?.Count() == 0)
-            {
-                return tiebaGuanZhuLieBiao;
-            }
-
-            var non_gconforum = htmlJson["forum_list"]?["non-gconforum"];
-            foreach (var ng in non_gconforum)
-            {
-                TiebaGuanZhuJieGou guanZhuJieGou = new TiebaGuanZhuJieGou
-                {
-                    TiebaName = ng["name"]?.ToString()
-                };
-                long.TryParse(ng["id"]?.ToString(), out guanZhuJieGou.Fid);
-                int.TryParse(ng["level_id"]?.ToString(), out guanZhuJieGou.DengJi);
-                int.TryParse(ng["cur_score"]?.ToString(), out guanZhuJieGou.JingYanZhi);
-
-                tiebaGuanZhuLieBiao.Add(guanZhuJieGou);
-            }
-
-            return tiebaGuanZhuLieBiao;
-        }
-
-        /// <summary>
-        /// 获取用户贴吧等级
-        /// </summary>
-        /// <param name="yongHuMing">用户名</param>
-        /// <param name="tiebaName">贴吧名</param>
-        /// <returns></returns>
-        public static int GetYongHuTiebaDengJi(string cookie, string yongHuMing, string tiebaName)
-        {
-            List<TiebaGuanZhuJieGou> liebiao = GetTiebaGuanZhuLieBiao(cookie, yongHuMing);
-
-            List<TiebaGuanZhuJieGou> jieGuo = liebiao.Where(x => (x.TiebaName == tiebaName)).ToList();
-            if (jieGuo.Count > 0)
-            {
-                return jieGuo[0].DengJi;
-            }
-
-            return -1;
         }
 
         /// <summary>
@@ -317,10 +202,10 @@ namespace TiebaApi.TiebaWebApi
             }
 
             string url = $"https://tieba.baidu.com/home/get/panel?ie=utf-8{canShu}";
-            //Console.WriteLine(url);
+            Console.WriteLine(url);
 
             string html = TiebaHttpHelper.Get(url);
-            //Console.WriteLine(html);
+            Console.WriteLine(html);
 
             if (string.IsNullOrEmpty(html))
             {
@@ -346,7 +231,7 @@ namespace TiebaApi.TiebaWebApi
             }
 
             long.TryParse(jObject["data"]?["id"]?.ToString(), out mingPianJieGou.Uid);
-            mingPianJieGou.TouXiang = Tieba.GuoLvTouXiangID(jObject["data"]?["portrait"]?.ToString());
+            mingPianJieGou.TouXiangID = Tieba.GuoLvTouXiangID(jObject["data"]?["portrait"]?.ToString());
             mingPianJieGou.YongHuMing = jObject["data"]?["name"]?.ToString();
             mingPianJieGou.NiCheng = jObject["data"]?["name_show"]?.ToString();
             mingPianJieGou.FuGaiMing = jObject["data"]?["show_nickname"]?.ToString();
@@ -462,289 +347,6 @@ namespace TiebaApi.TiebaWebApi
             return false;
         }
 
-        /// <summary>
-        /// 客户端签到
-        /// </summary>
-        /// <param name="cookie">Cookie</param>
-        /// <param name="tiebaName">贴吧名</param>
-        /// <param name="fid">Fid</param>
-        /// <param name="msg">签到结果</param>
-        /// <returns></returns>
-        public static bool KeHuDuanQianDao(string cookie, string tiebaName, string fid, out string msg)
-        {
-            string url = "http://c.tieba.baidu.com/c/c/forum/sign";
-            string postStr
-                = cookie
-                + "&_client_id=" + Tieba.GetAndroidStamp()
-                + "&_client_type=2"
-                + "&_client_version=9.9.8.32"
-                + $"&fid={fid}"
-                + $"&kw={Http.UrlEncodeUtf8(tiebaName)}"
-                + "&net_type=3"
-                + $"&tbs={GetBaiduTbs(cookie)}";
-
-            postStr += "&sign=" + Tieba.GetTiebaSign(postStr);
-
-            string html = TiebaHttpHelper.Post(url, postStr, cookie);
-            if (string.IsNullOrEmpty(html))
-            {
-                msg = "网络异常";
-                return false;
-            }
-
-            //解析
-            JObject htmlJson;
-            try
-            {
-                htmlJson = JObject.Parse(html);
-            }
-            catch
-            {
-                msg = "Json解析失败";
-                return false;
-            }
-
-            msg = BST.DeUnicode(Convert.ToString(htmlJson["error_msg"]));
-            string error_code = Convert.ToString(htmlJson["error_code"]);
-            if (error_code != "0")
-            {
-                msg += $"({error_code})";
-                return false;
-            }
-            else
-            {
-                msg = "签到成功";
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// 获取我的帖子
-        /// </summary>
-        /// <param name="cookie"></param>
-        /// <param name="isZhuTi"></param>
-        /// <param name="uid"></param>
-        /// <param name="pn"></param>
-        /// <param name="msg"></param>
-        /// <returns></returns>
-        public static List<TiebaWoDeTieZiJieGou> GetWoDeTieZi(string cookie, bool isZhuTi, long uid, int pn, out string msg)
-        {
-            List<TiebaWoDeTieZiJieGou> lieBiao = new List<TiebaWoDeTieZiJieGou>();
-
-            string url = "http://c.tieba.baidu.com/c/u/feed/userpost";
-            string postStr
-                = cookie
-                + "&_client_id=" + Tieba.GetAndroidStamp()
-                + "&_client_type=2"
-                + "&_client_version=12.5.1.0"
-                //+ $"&_phone_imei=000000000000000"
-                //+ $"&c3_aid=A00-KVSOM4UW7FB7WIHJH5UVTKTFOD2QOTER-SC27XGGW"
-                //+ $"&cuid=34DDE2B2B66E6C36D513959AA37AEAC1%7CO"
-                //+ $"&cuid_galaxy2=34DDE2B2B66E6C36D513959AA37AEAC1%7CO"
-                //+ $"&cuid_gid="
-                //+ $"&flutter_net=1"
-                //+ $"&framework_ver=3290033"
-                //+ $"&from=1024328t"
-                + $"&is_thread={(isZhuTi ? 1 : 0)}"
-                + $"&is_view_card=1"
-                //+ $"&model=Redmi+K20+Pro"
-                + $"&need_content=1"
-                + $"&net_type=1"
-                + $"&pn={pn}"
-                //+ $"&q_type=80"
-                + $"&rn=50"
-                //+ $"&scr_dip=2.64"
-                //+ $"&scr_h=886.3636363636364"
-                //+ $"&scr_w=409.09090909090907"
-                //+ $"&sdk_ver=2.29.0"
-                //+ $"&stErrorNums=0"
-                //+ $"&stoken=f4ae22f91c43ac787c315ca746d9656cbab80f0bf8d8b487460a3cf825f297f6"
-                //+ $"&swan_game_ver=1033000"
-                + $"&tbs={GetBaiduTbs(cookie)}"
-                //+ $"&timestamp=1621483249220"
-                + $"&uid={uid}";
-            //+ $"&z_id=afOHNtWGDdgwVx3MWR41zc2E9IOQgI-2LioQkYTw6lO8qo9FueU0ibDW0I39q8zToGzDWQ_uWbmIKo-UoVOpyRg";
-
-            postStr += "&sign=" + Tieba.GetTiebaSign(postStr);
-
-            string html = TiebaHttpHelper.Post(url, postStr, cookie);
-            if (string.IsNullOrEmpty(html))
-            {
-                msg = "网络异常";
-                return lieBiao;
-            }
-
-            //Console.WriteLine(html);
-
-            //解析
-            JObject htmlJson;
-            try
-            {
-                htmlJson = JObject.Parse(html);
-            }
-            catch
-            {
-                msg = "Json解析失败";
-                return lieBiao;
-            }
-
-            msg = BST.DeUnicode(Convert.ToString(htmlJson["error_msg"]));
-            string error_code = Convert.ToString(htmlJson["error_code"]);
-            if (error_code != "0")
-            {
-                msg += $"({error_code})";
-                return lieBiao;
-            }
-
-            var post_list = htmlJson["post_list"];
-
-            foreach (var post in post_list)
-            {
-                lieBiao.Add(new TiebaWoDeTieZiJieGou
-                {
-                    IsZhuTi = post["is_thread"]?.ToString() == "1",
-                    TiebaName = post["forum_name"]?.ToString(),
-                    Fid = Convert.ToInt64(post["forum_id"]?.ToString()),
-                    Tid = Convert.ToInt64(post["thread_id"]?.ToString()),
-                    Pid = Convert.ToInt64(post["post_id"]?.ToString()),
-                    BiaoTi = post["title"]?.ToString(),
-                    Uid = Convert.ToInt64(post["user_id"]?.ToString()),
-                    NiCheng = post["name_show"]?.ToString(),
-                    TouXiang = Tieba.GuoLvTouXiangID(post["user_portrait"]?.ToString()),
-                    FaTieShiJian = BST.ShiJianChuoDaoShiJian(Convert.ToInt64(post["create_time"]?.ToString()) * 1000),
-                    FaTieShiJianChuo = Convert.ToInt64(post["create_time"]?.ToString())
-                });
-            }
-
-            msg = "获取成功";
-            return lieBiao;
-        }
-
-        /// <summary>
-        /// 客户端签到
-        /// </summary>
-        /// <param name="cookie"></param>
-        /// <param name="tiebaName"></param>
-        /// <param name="msg"></param>
-        /// <returns></returns>
-        public static bool KeHuDuanQianDao(string cookie, string tiebaName, out string msg)
-        {
-            string url = "http://c.tieba.baidu.com/c/c/forum/sign";
-            string postStr
-                = cookie
-                + "&_client_id=" + Tieba.GetAndroidStamp()
-                + "&_client_type=2"
-                + "&_client_version=5.3.1"
-                //+ "&_phone_imei=042791438690445"
-                //+ "&cuid=DCE2BCBBC5F4307F7457E2463A14F382%7C544096834197240"
-                //+ "&from=baidu_appstore"
-                + "&kw=" + Http.UrlEncodeUtf8(tiebaName)
-                //+ "&model=GT-I9100"
-                //+ "&stErrorNums=0"
-                //+ "&stMethod=1"
-                //+ "&stMode=1"
-                //+ "&stSize=64923"
-                //+ "&stTime=780"
-                //+ "&stTimesNum=0"
-                + "&tbs=" + GetBaiduTbs(cookie);
-            //+ "&timestamp=1388306178920";
-
-            postStr += "&sign=" + Tieba.GetTiebaSign(postStr);
-
-            string html = TiebaHttpHelper.Post(url, postStr, cookie);
-
-            //可能是网络故障
-            if (string.IsNullOrEmpty(html))
-            {
-                msg = "网络异常";
-                return false;
-            }
-
-            //解析
-            JObject huiFuJsonData;
-            try
-            {
-                huiFuJsonData = JObject.Parse(html);
-            }
-            catch
-            {
-                msg = "Json解析失败";
-                return false;
-            }
-
-            //访问失败
-            msg = huiFuJsonData["error_msg"]?.ToString();
-            if (huiFuJsonData["error_code"]?.ToString() != "0")
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// 一键签到
-        /// </summary>
-        /// <param name="cookie"></param>
-        /// <param name="msg"></param>
-        /// <returns></returns>
-        public static bool YiJianQianDao(string cookie, out string msg)
-        {
-            string url = "http://c.tieba.baidu.com/c/c/forum/msign";
-            string postStr
-                = cookie
-                + "&_client_id=" + Tieba.GetAndroidStamp()
-                + "&_client_type=2"
-                + "&_client_version=5.3.1"
-                //+ "&_phone_imei=042791438690445"
-                //+ "&cuid=DCE2BCBBC5F4307F7457E2463A14F382%7C544096834197240"
-                //+ "&forum_ids=1938496%2C1929829"
-                //+ "&from=baidu_appstore"
-                //+ "&model=GT-I9100"
-                //+ "&stErrorNums=0"
-                //+ "&stMethod=1"
-                //+ "&stMode=1"
-                //+ "&stSize=138"
-                //+ "&stTime=120"
-                //+ "&stTimesNum=0"
-                + "&tbs=" + GetBaiduTbs(cookie);
-            //+ "&timestamp=1388304097180"
-            //+ "&user_id=16303";
-
-            postStr += "&sign=" + Tieba.GetTiebaSign(postStr);
-
-            string html = TiebaHttpHelper.Post(url, postStr, cookie);
-
-            Console.WriteLine(BST.DeUnicode(html));
-
-            //可能是网络故障
-            if (string.IsNullOrEmpty(html))
-            {
-                msg = "网络异常";
-                return false;
-            }
-
-            //解析
-            JObject huiFuJsonData;
-            try
-            {
-                huiFuJsonData = JObject.Parse(html);
-            }
-            catch
-            {
-                msg = "Json解析失败";
-                return false;
-            }
-
-            //访问失败
-            msg = huiFuJsonData["error_msg"]?.ToString();
-            if (huiFuJsonData["error_code"]?.ToString() != "0")
-            {
-                return false;
-            }
-
-            return true;
-        }
+        
     }
 }

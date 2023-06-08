@@ -17,7 +17,7 @@ namespace TiebaApi.TiebaJieGou
 
         public long Uid;
         public string NiCheng;
-        public string TouXiang;
+        public string TouXiangID;
 
         public DateTime FaTieShiJian;
         public long FaTieShiJianChuo;

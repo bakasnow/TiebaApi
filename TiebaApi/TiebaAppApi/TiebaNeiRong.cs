@@ -35,7 +35,7 @@ namespace TiebaApi.TiebaAppApi
             int suoYin = 0;
             foreach (var content in jToken)
             {
-                Console.WriteLine(content);
+                //Console.WriteLine(content);
 
                 if (!int.TryParse(content["type"]?.ToString(), out int leiXing))
                 {
@@ -90,11 +90,10 @@ namespace TiebaApi.TiebaAppApi
                         TuPianJieGou tuPianJieGou = new TuPianJieGou
                         {
                             SuoYin = suoYin++,
-                            LeiXing = TiebaNeiRongLeiXing.TuPian
+                            LeiXing = TiebaNeiRongLeiXing.TuPian,
+                            WenBen = content["origin_src"]?.ToString(),
+                            LianJie = content["origin_src"]?.ToString()
                         };
-
-                        tuPianJieGou.WenBen = content["origin_src"]?.ToString();
-                        tuPianJieGou.LianJie = content["origin_src"]?.ToString();
 
                         string[] bsize = content["bsize"]?.ToString().Split(',');
                         if (bsize.Length == 2)

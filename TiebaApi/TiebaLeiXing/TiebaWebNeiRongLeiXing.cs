@@ -2,9 +2,9 @@
 namespace TiebaApi.TiebaLeiXing
 {
     /// <summary>
-    /// 贴吧内容类型
+    /// 贴吧Web内容类型
     /// </summary>
-    public enum TiebaNeiRongLeiXing
+    public enum TiebaWebNeiRongLeiXing
     {
         /// <summary>
         /// 文本

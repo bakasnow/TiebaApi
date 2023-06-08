@@ -155,7 +155,7 @@ namespace TiebaApi.TiebaAppApi
                 long.TryParse(subpost["author"]?["id"]?.ToString(), out louZhongLouJieGou.Uid);
                 louZhongLouJieGou.YongHuMing = subpost["author"]?["name"]?.ToString();
                 louZhongLouJieGou.NiCheng = subpost["author"]?["name_show"]?.ToString();
-                louZhongLouJieGou.TouXiang = Tieba.GuoLvTouXiangID(subpost["author"]?["portrait"]?.ToString());
+                louZhongLouJieGou.TouXiangID = Tieba.GuoLvTouXiangID(subpost["author"]?["portrait"]?.ToString());
                 int.TryParse(subpost["author"]?["level_id"]?.ToString(), out louZhongLouJieGou.DengJi);
                 louZhongLouJieGou.IsBaWu = subpost["author"]?["is_bawu"]?.ToString() == "1";
                 louZhongLouJieGou.YinJi = new TiebaYinJi(subpost["author"]?["iconinfo"]);

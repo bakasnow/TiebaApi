@@ -22,7 +22,7 @@ namespace TiebaApi.TiebaJieGou
 
             public string YongHuMing;
             public string NiCheng;
-            public string TouXiang;
+            public string TouXiangID;
             public string FaTieShiJian;
 
             public string CaoZuoLeiXing;

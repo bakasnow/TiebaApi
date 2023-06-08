@@ -35,17 +35,18 @@
     <Reference Include="BakaSnowTool">
       <HintPath>..\..\BakaSnowTool\BakaSnowTool\bin\Release\BakaSnowTool.dll</HintPath>
     </Reference>
-    <Reference Include="HtmlAgilityPack, Version=1.11.34.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlAgilityPack.1.11.34\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    <Reference Include="HtmlAgilityPack, Version=1.11.46.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.11.46\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
-    <Reference Include="HttpHelper">
+    <Reference Include="HttpHelper, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\HttpHepler v2.2\CsharpHttpHelper\bin\Release\HttpHelper.dll</HintPath>
     </Reference>
     <Reference Include="ImageProcessor, Version=2.9.1.225, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ImageProcessor.2.9.1\lib\net452\ImageProcessor.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -72,6 +73,9 @@
     <Compile Include="TiebaAppApi\TiebaZhuTi.cs" />
     <Compile Include="TiebaBaWuApi\TiebaBaWu.cs" />
     <Compile Include="TiebaBaWuApi\TiebaBaWuHouTai.cs" />
+    <Compile Include="TiebaCanShu\GetTieZiGuanLiRiZhiCanShu.cs" />
+    <Compile Include="TiebaCanShu\TiebaShanHuiFuCanShu.cs" />
+    <Compile Include="TiebaCanShu\TiebaShanZhuTiCanShu.cs" />
     <Compile Include="TiebaForms\TiebaHanZiYanZhengMaForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -87,19 +91,31 @@
     <Compile Include="TiebaJieGou\TiebaNeiRongJieGou.cs" />
     <Compile Include="TiebaJieGou\TiebaBaWuHouTaiJieGou.cs" />
     <Compile Include="TiebaJieGou\TiebaUidJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaWebHuiFuJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaWebNeiRongJieGou2.cs" />
+    <Compile Include="TiebaJieGou\TiebaWebNeiRongJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaWebUidJieGou.cs" />
+    <Compile Include="TiebaJieGou\TiebaWebZhuTiJieGou.cs" />
     <Compile Include="TiebaJieGou\TiebaWoDeTieZiJieGou.cs" />
     <Compile Include="TiebaJieGou\TiebaXiaoXiAtWoDeJieGou.cs" />
     <Compile Include="TiebaJieGou\TiebaYongHuSouSuoJieGou.cs" />
     <Compile Include="TiebaJieGou\TiebaYongHuXinXiJieGou.cs" />
     <Compile Include="TiebaJieGou\TiebaZhuTiJieGou.cs" />
+    <Compile Include="TiebaLeiXing\TiebaBaWuHouTaiChaXunLeiXing.cs" />
     <Compile Include="TiebaLeiXing\TiebaBaWuLeiXing.cs" />
+    <Compile Include="TiebaLeiXing\TiebaLeiXingZhuanHuan.cs" />
     <Compile Include="TiebaLeiXing\TiebaNeiRongLeiXing.cs" />
+    <Compile Include="TiebaLeiXing\TiebaWebNeiRongLeiXing.cs" />
+    <Compile Include="TiebaLeiXing\TieZiGuanLiRiZhiCaoZuoLeiXing.cs" />
     <Compile Include="TiebaTools\TiebaHttpHelper.cs" />
     <Compile Include="TiebaWebApi\Tieba.cs" />
     <Compile Include="TiebaWebApi\TiebaGaoJiSouSuo.cs" />
     <Compile Include="TiebaWebApi\TiebaGeRenZhuYe.cs" />
-    <Compile Include="TiebaWebApi\TiebaGeRenZhuYeChuPingBan.cs" />
     <Compile Include="TiebaWebApi\TiebaWeb.cs" />
+    <Compile Include="TiebaWebApi\TiebaWebGeRenZhongXin.cs" />
+    <Compile Include="TiebaWebApi\TiebaWebHuiFu.cs" />
+    <Compile Include="TiebaWebApi\TiebaWebNeiRong.cs" />
+    <Compile Include="TiebaWebApi\TiebaWebZhuTi.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

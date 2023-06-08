@@ -1,42 +1,39 @@
 ﻿using BakaSnowTool;
 using BakaSnowTool.Http;
 using Newtonsoft.Json.Linq;
+using System;
+using TiebaApi.TiebaCanShu;
 using TiebaApi.TiebaForms;
+using TiebaApi.TiebaLeiXing;
 using TiebaApi.TiebaTools;
 using TiebaApi.TiebaWebApi;
 
 namespace TiebaApi.TiebaBaWuApi
 {
-    public class TiebaBaWu
+    public static class TiebaBaWu
     {
-        public string Cookie = string.Empty;
-        public long Uid = 0;
-        public string TiebaName = string.Empty;
-        public string YongHuMing = string.Empty;
-        public string NiCheng = string.Empty;
-        public string TouXiang = string.Empty;
-        public long Fid = 0;
-        public long Tid = 0;
-        public long Pid = 0;
-
         /// <summary>
         /// 网页端删主题
         /// </summary>
-        /// <param name="msg">消息</param>
+        /// <param name="canShu"></param>
+        /// <param name="msg"></param>
         /// <returns></returns>
-        public bool ShanZhuTi(out string msg, string vcode = "", string vcode_md5 = "")
+        public static bool ShanZhuTi(TiebaShanZhuTiCanShu canShu, out string msg)
         {
-            string url = "http://tieba.baidu.com/f/commit/thread/delete";
-            string postStr = $"commit_fr=pb" +
-                $"&fid={Fid}" +
+            string url = "https://tieba.baidu.com/f/commit/thread/delete";
+            string postStr =
+                $"commit_fr=pb" +
                 $"&ie=utf-8" +
-                $"&kw={Http.UrlEncodeUtf8(TiebaName)}" +
-                $"&tbs={TiebaWeb.GetBaiduTbs(Cookie)}" +
-                $"&tid={Tid}" +
-                $"{(string.IsNullOrEmpty(vcode) ? string.Empty : $"&vcode={vcode}")}" +
-                $"{(string.IsNullOrEmpty(vcode_md5) ? string.Empty : $"&vcode_md5={vcode_md5}")}";
+                $"&tbs={TiebaWeb.GetBaiduTbs(canShu.Cookie)}" +
+                $"&kw={Http.UrlEncodeUtf8(canShu.TiebaName)}" +
+                $"&fid={canShu.Fid}" +
+                $"&tid={canShu.Tid}" +
+                $"&is_frs_mask=0" +
+                $"&reason=5" +
+                $"{(string.IsNullOrEmpty(canShu.VCode) ? string.Empty : $"&vcode={canShu.VCode}")}" +
+                $"{(string.IsNullOrEmpty(canShu.VCode_md5) ? string.Empty : $"&vcode_md5={canShu.VCode_md5}")}";
 
-            string html = TiebaHttpHelper.Post(url, postStr, Cookie);
+            string html = TiebaHttpHelper.Post(url, postStr, canShu.Cookie);
             if (string.IsNullOrEmpty(html))
             {
                 msg = "网络错误";
@@ -54,39 +51,90 @@ namespace TiebaApi.TiebaBaWuApi
                 return false;
             }
 
-            //{"no":0,"err_code":0,"error":null,"data":{"mute_text":null}}
-            //{"no":4009,"err_code":224009,"error":null,"data":null}
-
-            msg = jObject["err_code"]?.ToString();
-            if (jObject["no"]?.ToString() != "0")
+            //访问失败
+            string err_code = jObject["err_code"]?.ToString();
+            if (err_code == "224011")
             {
+                string captcha_code_type = jObject["data"]?["vcode"]?["captcha_code_type"]?.ToString();
+                string captcha_vcode_str = jObject["data"]?["vcode"]?["captcha_vcode_str"]?.ToString();
+
+                //需要验证码
+                TiebaHanZiYanZhengMaForm hanZiYanZhengMaForm = new TiebaHanZiYanZhengMaForm
+                {
+                    captcha_vcode_str = captcha_vcode_str
+                };
+                hanZiYanZhengMaForm.ShowDialog();
+
+                string captcha_input_str = hanZiYanZhengMaForm.captcha_input_str;
+
+                if (TiebaWeb.ShanTieYanZhengMa(canShu.Cookie, captcha_vcode_str, captcha_code_type, captcha_input_str, canShu.Fid))
+                {
+                    canShu.VCode = captcha_input_str;
+                    canShu.VCode_md5 = captcha_vcode_str;
+
+                    if (ShanZhuTi(canShu, out string msg2))
+                    {
+                        msg = "删帖成功：验证码正确";
+                        return true;
+                    }
+                    else
+                    {
+                        msg = msg2;
+                    }
+                }
+                else
+                {
+                    msg = "删帖失败：验证码错误";
+                }
+
                 return false;
             }
 
-            return true;
+            switch (err_code)
+            {
+                case "0":
+                    msg = "删帖成功";
+                    return true;
+
+                case "220034":
+                    msg = $"删帖数量已到达上限({err_code})";
+                    return false;
+
+                case "230308":
+                    msg = $"权限不足({err_code})";
+                    return false;
+
+                //case "224011":
+                //    msg = $"需要验证码({err_code})";
+                //    return false;
+
+                default:
+                    msg = $"未知错误({err_code})";
+                    return false;
+            }
         }
 
         /// <summary>
         /// 网页端删回复
         /// </summary>
-        /// <param name="msg">消息</param>
-        /// <param name="isFinf">是否楼中楼</param>
+        /// <param name="canShu"></param>
+        /// <param name="msg"></param>
         /// <returns></returns>
-        public bool ShanHuiFu(out string msg, bool isFinf = false, string vcode = "", string vcode_md5 = "")
+        public static bool ShanHuiFu(TiebaShanHuiFuCanShu canShu, out string msg)
         {
             string url = "http://tieba.baidu.com/f/commit/post/delete";
             string postData = $"commit_fr=pb&ie=utf-8" +
-                $"&tbs={TiebaWeb.GetBaiduTbs(Cookie)}" +
-                $"&kw={Http.UrlEncodeUtf8(TiebaName)}" +
-                $"&fid={Fid}" +
-                $"&tid={Tid}" +
+                $"&tbs={TiebaWeb.GetBaiduTbs(canShu.Cookie)}" +
+                $"&kw={Http.UrlEncodeUtf8(canShu.TiebaName)}" +
+                $"&fid={canShu.Fid}" +
+                $"&tid={canShu.Tid}" +
                 $"&is_vipdel=0" +
-                $"&pid={Pid}" +
-                $"&is_finf={(isFinf ? "1" : "false")}" +
-                $"{(string.IsNullOrEmpty(vcode) ? string.Empty : $"&vcode={vcode}")}" +
-                $"{(string.IsNullOrEmpty(vcode_md5) ? string.Empty : $"&vcode_md5={vcode_md5}")}";
+                $"&pid={canShu.Pid}" +
+                $"&is_finf={(canShu.IsFinf ? "1" : "false")}" +
+                $"{(string.IsNullOrEmpty(canShu.VCode) ? string.Empty : $"&vcode={canShu.VCode}")}" +
+                $"{(string.IsNullOrEmpty(canShu.VCode_md5) ? string.Empty : $"&vcode_md5={canShu.VCode_md5}")}";
 
-            string html = TiebaHttpHelper.Post(url, postData, Cookie);
+            string html = TiebaHttpHelper.Post(url, postData, canShu.Cookie);
             if (string.IsNullOrEmpty(html))
             {
                 msg = "网络错误";
@@ -122,9 +170,12 @@ namespace TiebaApi.TiebaBaWuApi
 
                 string captcha_input_str = hanZiYanZhengMaForm.captcha_input_str;
 
-                if (TiebaWeb.ShanTieYanZhengMa(Cookie, captcha_vcode_str, captcha_code_type, captcha_input_str, Fid))
+                if (TiebaWeb.ShanTieYanZhengMa(canShu.Cookie, captcha_vcode_str, captcha_code_type, captcha_input_str, canShu.Fid))
                 {
-                    if (ShanHuiFu(out string msg2, isFinf, captcha_input_str, captcha_vcode_str))
+                    canShu.VCode = captcha_input_str;
+                    canShu.VCode_md5 = captcha_vcode_str;
+
+                    if (ShanHuiFu(canShu, out string msg2))
                     {
                         msg = "删帖成功：验证码正确";
                         return true;
@@ -169,45 +220,59 @@ namespace TiebaApi.TiebaBaWuApi
         /// <summary>
         /// 操作量查询
         /// </summary>
-        /// <param name="caoZuoRen">操作人</param>
-        /// <param name="kaiShiRiQi">开始日期</param>
-        /// <param name="jieShuRiQi">结束日期</param>
+        /// <param name="canShu"></param>
+        /// <param name="msg"></param>
         /// <returns></returns>
-        public int CaoZuoLiangChaXun(string caoZuoRen, string kaiShiRiQi, string jieShuRiQi)
+        public static int GetCaoZuoLiang(GetTieZiGuanLiRiZhiCanShu canShu, out string msg)
         {
-            long kaiShiShiJianChuo = BST.QuShiJianChuo(kaiShiRiQi + " 00:00:00", "1970-01-01 08:00:00");
-            long jieShuShiJianChuo = BST.QuShiJianChuo(jieShuRiQi + " 23:59:59", "1970-01-01 08:00:00");
+            long kaiShiShiJianChuo = BST.QuShiJianChuo($"{canShu.KaiShiRiQi:yyyy-MM-dd} 00:00:00", "1970-01-01 08:00:00");
+            long jieShuShiJianChuo = BST.QuShiJianChuo($"{canShu.JieShuRiQi:yyyy-MM-dd} 23:59:59", "1970-01-01 08:00:00");
 
-            string url = $"http://tieba.baidu.com/bawu2/platform/listPostLog?word={Http.UrlEncode(TiebaName)}&op_type=&stype=op_uname&svalue={Http.UrlEncode(caoZuoRen)}&date_type=on&startTime={kaiShiRiQi}&begin={kaiShiShiJianChuo}&endTime={jieShuRiQi}&end={jieShuShiJianChuo}";
-            string html = TiebaHttpHelper.Get(url, Cookie);
+            string url = $"https://tieba.baidu.com/bawu2/platform/listPostLog?" +
+                $"stype=op_uname" +
+                $"&svalue={Http.UrlEncode(canShu.YongHuMing)}" +
+                $"&begin={kaiShiShiJianChuo}" +
+                $"&end={jieShuShiJianChuo}" +
+                $"&op_type={(canShu.CaoZuoLeiXing == TieZiGuanLiRiZhiCaoZuoLeiXing.QuanBuCaoZuo ? "" : $"{(int)canShu.CaoZuoLeiXing}")}" +
+                $"&word={Http.UrlEncode(canShu.TiebaName)}" +
+                $"&pn={canShu.Pn}";
+
+            string html = TiebaHttpHelper.Get(url, canShu.Cookie);
             if (string.IsNullOrEmpty(html))
             {
+                msg = "Html获取失败";
                 return -1;
             }
 
             if (int.TryParse(BST.JianYiZhengZe(html, "<div class=\"breadcrumbs\">共<em>([0-9]*)</em>条记录</div>"), out int caoZuoLiang))
             {
+                msg = "获取成功";
                 return caoZuoLiang;
             }
             else
             {
+                msg = "获取失败";
                 return -1;
             }
-
         }
 
         /// <summary>
         /// 网页端封禁
         /// </summary>
-        /// <param name="day">天数</param>
-        /// <param name="liYou">理由</param>
-        /// <param name="msg">消息</param>
+        /// <param name="cookie"></param>
+        /// <param name="fid"></param>
+        /// <param name="yongHuMing"></param>
+        /// <param name="niCheng"></param>
+        /// <param name="touXiangID"></param>
+        /// <param name="day"></param>
+        /// <param name="liYou"></param>
+        /// <param name="msg"></param>
         /// <returns></returns>
-        public bool FengJin(int day, string liYou, out string msg)
+        public static bool FengJin(string cookie, long fid, string yongHuMing, string niCheng, string touXiangID, int day, string liYou, out string msg)
         {
             string url = "http://tieba.baidu.com/pmc/blockid";
-            string postStr = $"day={day}&fid={Fid}&tbs={TiebaWeb.GetBaiduTbs(Cookie)}&ie=gbk&user_name%5B%5D={Http.UrlEncodeUtf8(YongHuMing)}&nick_name%5B%5D={Http.UrlEncodeUtf8(NiCheng)}&portrait%5B%5D={TouXiang}&reason={Http.UrlEncodeUtf8(liYou)}";
-            string html = TiebaHttpHelper.Post(url, postStr, Cookie);
+            string postStr = $"day={day}&fid={fid}&tbs={TiebaWeb.GetBaiduTbs(cookie)}&ie=gbk&user_name%5B%5D={Http.UrlEncodeUtf8(yongHuMing)}&nick_name%5B%5D={Http.UrlEncodeUtf8(niCheng)}&portrait%5B%5D={touXiangID}&reason={Http.UrlEncodeUtf8(liYou)}";
+            string html = TiebaHttpHelper.Post(url, postStr, cookie);
             if (string.IsNullOrEmpty(html))
             {
                 msg = "网络异常";
@@ -240,13 +305,16 @@ namespace TiebaApi.TiebaBaWuApi
         /// <summary>
         /// 解封
         /// </summary>
-        /// <param name="msg">返回信息</param>
+        /// <param name="cookie"></param>
+        /// <param name="tiebaName"></param>
+        /// <param name="yongHuMing"></param>
+        /// <param name="msg"></param>
         /// <returns></returns>
-        public bool JieFeng(out string msg)
+        public static bool JieFeng(string cookie, string tiebaName, string yongHuMing, out string msg)
         {
             string url = "http://tieba.baidu.com/bawu2/platform/cancelFilter";
-            string postStr = $"word={Http.UrlEncodeUtf8(TiebaName)}&tbs={TiebaWeb.GetBaiduTbs(Cookie)}&ie=utf-8&type=0&list%5B0%5D%5Buser_id%5D={TiebaWeb.GetTiebaMingPian(YongHuMing).Uid}&list%5B0%5D%5Buser_name%5D={Http.UrlEncodeUtf8(YongHuMing)}";
-            string html = TiebaHttpHelper.Post(url, postStr, Cookie);
+            string postStr = $"word={Http.UrlEncodeUtf8(tiebaName)}&tbs={TiebaWeb.GetBaiduTbs(cookie)}&ie=utf-8&type=0&list%5B0%5D%5Buser_id%5D={TiebaWeb.GetTiebaMingPian(yongHuMing).Uid}&list%5B0%5D%5Buser_name%5D={Http.UrlEncodeUtf8(yongHuMing)}";
+            string html = TiebaHttpHelper.Post(url, postStr, cookie);
             if (string.IsNullOrEmpty(html))
             {
                 msg = "网络异常";
@@ -278,13 +346,16 @@ namespace TiebaApi.TiebaBaWuApi
         /// <summary>
         /// 操作量查询
         /// </summary>
-        /// <param name="kaiShiShiJian">开始时间</param>
-        /// <param name="jieShuShiJian">结束时间</param>
+        /// <param name="cookie"></param>
+        /// <param name="tiebaName"></param>
+        /// <param name="yongHuMing"></param>
+        /// <param name="kaiShiShiJian"></param>
+        /// <param name="jieShuShiJian"></param>
         /// <returns></returns>
-        public int GetCaoZuoLiang(string kaiShiShiJian, string jieShuShiJian)
+        public static int GetCaoZuoLiang(string cookie, string tiebaName, string yongHuMing, string kaiShiShiJian, string jieShuShiJian)
         {
-            string url = $"http://tieba.baidu.com/bawu2/platform/listPostLog?stype=op_uname&svalue={Http.UrlEncode(YongHuMing)}&begin={BST.QuShiJianChuo(kaiShiShiJian, "1970/01/01 08:00:00")}&end={BST.QuShiJianChuo(jieShuShiJian, "1970/01/01 08:00:00")}&op_type=&word={Http.UrlEncode(TiebaName)}&pn=1";
-            string html = TiebaHttpHelper.Get(url, Cookie);
+            string url = $"http://tieba.baidu.com/bawu2/platform/listPostLog?stype=op_uname&svalue={Http.UrlEncode(yongHuMing)}&begin={BST.QuShiJianChuo(kaiShiShiJian, "1970/01/01 08:00:00")}&end={BST.QuShiJianChuo(jieShuShiJian, "1970/01/01 08:00:00")}&op_type=&word={Http.UrlEncode(tiebaName)}&pn=1";
+            string html = TiebaHttpHelper.Get(url, cookie);
             if (string.IsNullOrEmpty(html))
             {
                 return -1;
@@ -301,29 +372,35 @@ namespace TiebaApi.TiebaBaWuApi
         /// <summary>
         /// 加入黑名单
         /// </summary>
+        /// <param name="cookie"></param>
+        /// <param name="yongHuMing"></param>
+        /// <param name="msg"></param>
         /// <returns></returns>
-        public bool JiaRuHeiMingDan(out string msg)
+        public static bool JiaRuHeiMingDan(string cookie, string yongHuMing, out string msg)
         {
-            long uid = TiebaWeb.GetTiebaMingPian(YongHuMing).Uid;
+            long uid = TiebaWeb.GetTiebaMingPian(yongHuMing).Uid;
             if (uid <= 0)
             {
                 msg = "Uid获取失败";
                 return false;
             }
 
-            return JiaRuHeiMingDan(uid, out msg);
+            return JiaRuHeiMingDan(cookie, yongHuMing, uid, out msg);
         }
 
         /// <summary>
         /// 加入黑名单
         /// </summary>
+        /// <param name="cookie"></param>
+        /// <param name="tiebaName"></param>
         /// <param name="uid"></param>
+        /// <param name="msg"></param>
         /// <returns></returns>
-        public bool JiaRuHeiMingDan(long uid, out string msg)
+        public static bool JiaRuHeiMingDan(string cookie, string tiebaName, long uid, out string msg)
         {
             string url = "http://tieba.baidu.com/bawu2/platform/addBlack";
-            string postData = $"tbs={TiebaWeb.GetBaiduTbs(Cookie)}&user_id={uid}&word={Http.UrlEncodeUtf8(TiebaName)}&ie=utf-8";
-            string html = TiebaHttpHelper.Post(url, postData, Cookie);
+            string postData = $"tbs={TiebaWeb.GetBaiduTbs(cookie)}&user_id={uid}&word={Http.UrlEncodeUtf8(tiebaName)}&ie=utf-8";
+            string html = TiebaHttpHelper.Post(url, postData, cookie);
             if (string.IsNullOrEmpty(html))
             {
                 msg = "网络错误";
@@ -353,31 +430,36 @@ namespace TiebaApi.TiebaBaWuApi
         /// <summary>
         /// 移除黑名单
         /// </summary>
-        /// <param name="msg"></param>
+        /// <param name="cookie"></param>
+        /// <param name="tiebaName"></param>
         /// <param name="yongHuMing"></param>
+        /// <param name="msg"></param>
         /// <returns></returns>
-        public bool YiChuHeiMingDan(out string msg)
+        public static bool YiChuHeiMingDan(string cookie, string tiebaName, string yongHuMing, out string msg)
         {
-            long uid = TiebaWeb.GetTiebaMingPian(YongHuMing).Uid;
+            long uid = TiebaWeb.GetTiebaMingPian(yongHuMing).Uid;
             if (uid <= 0)
             {
                 msg = "Uid获取失败";
                 return false;
             }
 
-            return YiChuHeiMingDan(uid, out msg);
+            return YiChuHeiMingDan(cookie, tiebaName, uid, out msg);
         }
 
         /// <summary>
         /// 移除黑名单
         /// </summary>
+        /// <param name="cookie"></param>
+        /// <param name="tiebaName"></param>
         /// <param name="uid"></param>
+        /// <param name="msg"></param>
         /// <returns></returns>
-        public bool YiChuHeiMingDan(long uid, out string msg)
+        public static bool YiChuHeiMingDan(string cookie, string tiebaName, long uid, out string msg)
         {
             string url = "http://tieba.baidu.com/bawu2/platform/cancelBlack";
-            string postData = $"word={Http.UrlEncodeUtf8(TiebaName)}&tbs={TiebaWeb.GetBaiduTbs(Cookie)}&list%5B%5D={uid}&ie=utf-8";
-            string html = TiebaHttpHelper.Post(url, postData, Cookie);
+            string postData = $"word={Http.UrlEncodeUtf8(tiebaName)}&tbs={TiebaWeb.GetBaiduTbs(cookie)}&list%5B%5D={uid}&ie=utf-8";
+            string html = TiebaHttpHelper.Post(url, postData, cookie);
             if (string.IsNullOrEmpty(html))
             {
                 msg = "网络错误";

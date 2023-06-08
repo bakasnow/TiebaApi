@@ -56,11 +56,12 @@ namespace TiebaApi.TiebaAppApi
             string postStr
                 = Cookie
                 + $"&_client_id={Tieba.GetAndroidStamp()}"
-                + "&_client_type=2"
-                + "&_client_version=7.9.2"
+                + $"&_client_type=2"
+                + $"&_client_version=7.9.2"
+                //+ $"&_client_version=12.36.1"
                 + $"&kw={Http.UrlEncodeUtf8(TiebaName)}"
                 + $"&pn={Pn}"
-                + "&rn=50";
+                + $"&rn=50";
 
             postStr += "&sign=" + Tieba.GetTiebaSign(postStr);
 
@@ -144,6 +145,8 @@ namespace TiebaApi.TiebaAppApi
                     zhuTiJieGou.BiaoTi = biaoTi;
                 }
 
+                zhuTiJieGou.BiaoTi = zhuTiJieGou.BiaoTi.Replace("\r", "").Replace("\n", "");
+
                 int.TryParse(thread["view_num"]?.ToString(), out zhuTiJieGou.DianJiLiang);
                 int.TryParse(thread["reply_num"]?.ToString(), out zhuTiJieGou.HuiFuShu);
                 long.TryParse(thread["last_time_int"]?.ToString(), out zhuTiJieGou.ZuiHouHuiFuShiJianChuo);
@@ -168,7 +171,7 @@ namespace TiebaApi.TiebaAppApi
                         long.TryParse(user["id"]?.ToString(), out zhuTiJieGou.Uid);
                         zhuTiJieGou.YongHuMing = user["name"]?.ToString();
                         zhuTiJieGou.NiCheng = user["name_show"]?.ToString();
-                        zhuTiJieGou.TouXiang = Tieba.GuoLvTouXiangID(user["portrait"]?.ToString());
+                        zhuTiJieGou.TouXiangID = Tieba.GuoLvTouXiangID(user["portrait"]?.ToString());
                         zhuTiJieGou.DengJi = -1;//主题帖没有等级
                         zhuTiJieGou.IsBaWu = user["is_bawu"]?.ToString() == "1";
                         zhuTiJieGou.YinJi = new TiebaYinJi(user["iconinfo"]);

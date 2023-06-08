@@ -1,19 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
 namespace TiebaApi.TiebaJieGou
 {
-    public class TiebaZhuTiJieGou : TiebaUidJieGou
-    {
+	public class TiebaWebZhuTiJieGou : TiebaWebUidJieGou
+	{
+		public string TiebaName;//贴吧名
+		public long Fid;//Fid
 		public int LeiXing;//类型
 		public long Tid;//Tid
 
 		public string BiaoTi;//标题
-		public int DianJiLiang;//点击量
-		public int HuiFuShu;//回复数
+		public string NeiRongYuLan;//内容预览
+		public List<TiebaWebTuPianJieGou> TuPianLieBiao;//图片列表
+		public List<TiebaWebShiPinJieGou> ShiPinLieBiao;//视频列表
+		public List<TiebaWebYuYinJieGou> YuYinLieBiao;//语音列表
 
+		public int HuiFuShu;//回复数
 		public int ZanTongShu;//赞同数
 		public int FanDuiShu;//反对数
-		public int ZhuanFaShu;//转发量
 
 		public DateTime FaTieShiJian;//发帖时间
 		public long FaTieShiJianChuo;//发帖时间戳
@@ -21,7 +29,7 @@ namespace TiebaApi.TiebaJieGou
 		public long ZuiHouHuiFuShiJianChuo;//最后回复时间戳
 
 		public bool IsZhiDing;//是否置顶
-		public bool IsJingPin;//是否精品
 		public bool IsHuiYuanZhiDing;//是否会员置顶
+		public bool IsHuaTi;//是否话题
 	}
 }

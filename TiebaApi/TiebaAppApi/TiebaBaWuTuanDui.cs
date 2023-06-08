@@ -3,9 +3,11 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TiebaApi.TiebaJieGou;
+using TiebaApi.TiebaLeiXing;
 using TiebaApi.TiebaTools;
 using TiebaApi.TiebaWebApi;
 
@@ -92,18 +94,22 @@ namespace TiebaApi.TiebaAppApi
             for (int x = 0; x < bawu_team_list.Count(); x++)
             {
                 string role_name = (string)bawu_team_list[x]?["role_name"];
+                TiebaBaWuLeiXing zhiWu = TiebaLeiXingZhuanHuan.TiebaBaWuWenBenZhuanLeiXing(role_name);
+
                 var role_info = bawu_team_list[x]?["role_info"];
                 for (int y = 0; y < role_info.Count(); y++)
                 {
-                    baWuTuanDuiLieBiao.Add(new TiebaBaWuTuanDuiJieGou
+                    TiebaBaWuTuanDuiJieGou tiebaBaWuTuanDuiJieGou = new TiebaBaWuTuanDuiJieGou
                     {
                         Uid = (long)role_info[y]?["user_id"],
                         YongHuMing = (string)role_info[y]?["user_name"],
                         NiCheng = (string)role_info[y]?["name_show"],
                         TouXiangID = (string)role_info[y]?["portrait"],
                         DengJi = (int)role_info[y]?["user_level"],
-                        ZhiWu = role_name
-                    });
+                        ZhiWu = zhiWu
+                    };
+
+                    baWuTuanDuiLieBiao.Add(tiebaBaWuTuanDuiJieGou);
                 }
             }
 

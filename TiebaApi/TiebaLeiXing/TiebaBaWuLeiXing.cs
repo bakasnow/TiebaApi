@@ -1,5 +1,9 @@
-﻿namespace TiebaApi.TiebaLeiXing
+﻿
+namespace TiebaApi.TiebaLeiXing
 {
+    /// <summary>
+    /// 贴吧吧务类型
+    /// </summary>
     public enum TiebaBaWuLeiXing
     {
         /// <summary>
@@ -10,36 +14,41 @@
         /// <summary>
         /// 小吧主
         /// </summary>
-        XiaoBaZhu = 8,
+        XiaoBaZhu = 9,
 
         /// <summary>
         /// 语音小编
         /// </summary>
-        YuYinXiaoBian = 7,
+        YuYinXiaoBian = 8,
 
         /// <summary>
         /// 图片小编
         /// </summary>
-        TuPianXiaoBian = 3,
+        TuPianXiaoBian = 7,
 
         /// <summary>
         /// 视频小编
         /// </summary>
-        ShiPinXiaoBian = 3,
+        ShiPinXiaoBian = 6,
 
         /// <summary>
         /// 吧刊主编
         /// </summary>
-        BaKanZhuBian = 3,
+        BaKanZhuBian = 5,
 
         /// <summary>
         /// 吧刊小编
         /// </summary>
-        BaKanXiaoBian = 3,
+        BaKanXiaoBian = 4,
 
         /// <summary>
         /// 广播小编
         /// </summary>
-        GuangBoXiaoBian = 3
+        GuangBoXiaoBian = 3,
+
+        /// <summary>
+        /// 其他
+        /// </summary>
+        QiTa = 0
     }
 }

@@ -170,7 +170,7 @@ namespace TiebaApi.TiebaAppApi
                         long.TryParse(user["id"]?.ToString(), out huiFuJieGou.Uid);
                         huiFuJieGou.YongHuMing = user["name"]?.ToString();
                         huiFuJieGou.NiCheng = user["name_show"]?.ToString();
-                        huiFuJieGou.TouXiang = Tieba.GuoLvTouXiangID(user["portrait"]?.ToString());
+                        huiFuJieGou.TouXiangID = Tieba.GuoLvTouXiangID(user["portrait"]?.ToString());
                         int.TryParse(user["level_id"]?.ToString(), out huiFuJieGou.DengJi);
                         huiFuJieGou.IsBaWu = user["is_bawu"]?.ToString() == "1";
                         huiFuJieGou.YinJi = new TiebaYinJi(user["iconinfo"]);
